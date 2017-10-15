@@ -23,7 +23,7 @@ def test__can_start_a_list_and_retrieve_it_later(browser):
     browser.get('http://localhost:8000')
 
     # She notices the page title and header mention to-do lists
-    assert 'To-do' in browser.title
+    assert 'To-Do' in browser.title
     assert "Finish this test!" is None
 
     # She is invited to enter a to-do item straight away
