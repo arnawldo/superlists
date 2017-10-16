@@ -23,10 +23,10 @@ def check_for_row_in_list_table(browser, row_text):
     rows = table.find_elements_by_tag_name('tr')
     assert row_text in [row.text for row in rows]
 
-def test__can_start_a_list_and_retrieve_it_later(browser):
+def test__can_start_a_list_and_retrieve_it_later(browser, live_server):
     # Edith has heard about a cool new online to-do app. 
     # She goes to check out its homepage
-    browser.get('http://localhost:8000')
+    browser.get(live_server.url)
 
     # She notices the page title and header mention to-do lists
     assert 'To-Do' in browser.title
