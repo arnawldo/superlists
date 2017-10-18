@@ -20,14 +20,14 @@ def test__can_save_a_POST_request(client):
     assert new_item.text == 'A new list item'
 
     assert response.status_code == 302
-    assert response['location'] == '/'
+    assert response['location'] == '/lists/the-only-list-in-the-world'
 
 @pytest.mark.django_db
 def test__redirects_after_POST(client):
     response = client.post('/', data={'item_text': 'A new list item'})
     assert response.status_code == 302
-    assert response['location'] == '/'
-
+    assert response['location'] == '/lists/the-only-list-in-the-world'
+ 
 @pytest.mark.django_db
 def test__saving_and_retrieving_items():
     first_item = Item()
@@ -52,11 +52,16 @@ def test__only_saves_items_when_necessary(client):
     assert Item.objects.count() == 0
 
 @pytest.mark.django_db
-def test__displays_all_list_items(client):
+def test__uses_list_template(client):
+    response = client.get('/lists/the-only-list-in-the-world/')
+    assert 'list.html' in [t.name for t in response.templates]
+
+@pytest.mark.django_db
+def test__display_all_items(client):
     Item.objects.create(text='itemey 1')
     Item.objects.create(text='itemey 2')
 
-    response = client.get('/')
+    response = client.get('/lists/the-only-list-in-the-world/')
 
     assert 'itemey 1' in response.content.decode()
     assert 'itemey 2' in response.content.decode()
