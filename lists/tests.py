@@ -44,21 +44,28 @@ def test__only_saves_items_when_necessary(client):
     client.get('/')
     assert Item.objects.count() == 0
 
+# LIST VIEW
 @pytest.mark.django_db
 def test__uses_list_template(client):
-    response = client.get('/lists/the-only-list-in-the-world/')
+    list_ = List.objects.create()
+    response = client.get(f'/lists/{list_.id}/')
     assert 'list.html' in [t.name for t in response.templates]
 
 @pytest.mark.django_db
-def test__display_all_items(client):
-    list_ = List.objects.create()
-    Item.objects.create(text='itemey 1', list=list_)
-    Item.objects.create(text='itemey 2', list=list_)
+def test__displays_only_items_for_that_list(client):
+    correct_list = List.objects.create()
+    Item.objects.create(text='itemey 1', list=correct_list)
+    Item.objects.create(text='itemey 2', list=correct_list)
+    other_list = List.objects.create()
+    Item.objects.create(text='other list item 1', list=other_list)
+    Item.objects.create(text='other list item 1', list=other_list)
 
-    response = client.get('/lists/the-only-list-in-the-world/')
+    response = client.get(f'/lists/{correct_list.id}/')
 
     assert 'itemey 1' in response.content.decode()
     assert 'itemey 2' in response.content.decode()
+    assert 'other list item 1' not in response.content.decode()
+    assert 'other list item 2' not in response.content.decode()
 
 # NEW LIST
 @pytest.mark.django_db
@@ -69,11 +76,28 @@ def test__can_save_a_POST_request(client):
     new_item = Item.objects.first()
     assert new_item.text == 'A new list item'
 
-    assert response.status_code == 302
-    assert response['location'] == '/lists/the-only-list-in-the-world/'
-
 @pytest.mark.django_db
 def test__redirects_after_POST(client):
     response = client.post('/lists/new', data={'item_text': 'A new list item'})
+    new_list = List.objects.first()
     assert response.status_code == 302
-    assert response['location'] == '/lists/the-only-list-in-the-world/'
+    assert response['location'] == f'/lists/{new_list.id}/'
+
+@pytest.mark.django_db
+def test__passes_correct_list_to_template(client):
+    other_list = List.objects.create()
+    correct_list = List.objects.create()
+    response = client.get(f'/lists/{correct_list.id}/')
+    assert response.context['list'] == correct_list
+
+# NEW ITEM
+@pytest.mark.django_db
+def test__can_save_a_POST_request_to_an_existing_list(client):
+    other_list = List.objects.create()
+    correct_list = List.objects.create()
+
+    response = client.post(f'/lists/{correct_list.id}/add_item', 
+        data={'item_text': 'A new item for an existing list'}
+        )
+    assert response.status_code == 302
+    assert response['location'] == f'/lists/{correct_list.id}/'

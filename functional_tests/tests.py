@@ -80,7 +80,7 @@ def test__multiple_users_can_start_lists_at_different_urls(browser, live_server)
 
     # She notices that her list has a unique URL
     edith_list_url = browser.current_url
-    assert re.compile('/lists/.+').match(edith_list_url)
+    assert re.compile('.*/lists/.+').match(edith_list_url)
 
     # Now a new user, Francis, comes along to the site
 
@@ -100,11 +100,11 @@ def test__multiple_users_can_start_lists_at_different_urls(browser, live_server)
     inputbox = browser.find_element_by_id('id_new_item')
     inputbox.send_keys('Buy milk')
     inputbox.send_keys(Keys.ENTER)
-    wait_for_row_in_list_table('1: Buy milk')
+    wait_for_row_in_list_table(browser, '1: Buy milk')
 
     # Francis gets his own unique URL
     francis_list_url = browser.current_url
-    assert re.compile('/lists/.+').match(francis_list_url)
+    assert re.compile('.*/lists/.+').match(francis_list_url)
     assert francis_list_url != edith_list_url
 
     # Again. there is no trace of Edith's list
@@ -113,3 +113,4 @@ def test__multiple_users_can_start_lists_at_different_urls(browser, live_server)
     assert 'Buy milk' in page_text
 
     # Satisfied, they both go back to sleep
+    browser.quit()
