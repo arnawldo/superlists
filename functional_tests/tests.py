@@ -22,6 +22,7 @@ def browser(request):
 
     return firefox_browser
 
+# NEW VISITOR TEST
 def wait_for_row_in_list_table(browser, row_text):
     start_time = time.time()
     while True:
@@ -69,6 +70,15 @@ def test__can_start_a_list_for_one_user(browser, live_server):
     wait_for_row_in_list_table(browser, '2: Use peacock feathers to make a fly')
 
     # Satisfied, she goes back to sleep
+
+def test__layout_and_styling(browser, live_server):
+    # Edith goes to the home page
+    browser.get(live_server.url)
+    browser.set_window_size(1024, 768)
+
+    # She notices the input box is nicely centered
+    inputbox = browser.find_element_by_id('id_new_item')
+    assert abs(512 - inputbox.location['x'] + inputbox.size['width'] / 2) < 10
 
 def test__multiple_users_can_start_lists_at_different_urls(browser, live_server):
     # Edith starts a new to-do list
