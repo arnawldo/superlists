@@ -78,7 +78,7 @@ def test__layout_and_styling(browser, live_server):
 
     # She notices the input box is nicely centered
     inputbox = browser.find_element_by_id('id_new_item')
-    assert abs(512 - inputbox.location['x'] + inputbox.size['width'] / 2) < 10
+    assert abs(512 - (inputbox.location['x'] + inputbox.size['width'] / 2)) < 10
 
 def test__multiple_users_can_start_lists_at_different_urls(browser, live_server):
     # Edith starts a new to-do list
